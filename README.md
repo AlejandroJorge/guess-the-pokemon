@@ -1,48 +1,64 @@
-# Astro Starter Kit: Basics
+# Who's That Pokémon? 🎮🔍
 
-```sh
-bun create astro@latest -- --template basics
+So aniguess was down so I built this guessing game where you test your knowledge of Pokémon by guessing based on their silhouette! Built with Astro for fast static site generation.
+
+## Features ✨
+
+- 🖼️ **Silhouette Challenge**: Guess the Pokémon from its shadowy image
+- ❓ **Progressive Clues**: Reveal types, generation, and Pokédex entries as hints
+- ⏳ **Limited Guesses**: 4 attempts to get it right before game over
+- 📱 **Responsive Design**: Play seamlessly on desktop and mobile devices
+- 🔄 **Randomized Gameplay**: New Pokémon after each round with Astro SSG
+- 📖 **Pokédex Entries**: Authentic descriptions from the official games
+
+## Installation 🛠️
+
+1. **Clone the repository**
+```bash
+git clone https://github.com/yourusername/whos-that-pokemon.git
+cd whos-that-pokemon
 ```
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/basics)
-[![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/basics)
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/basics/devcontainer.json)
-
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
-
-![just-the-basics](https://github.com/withastro/astro/assets/2244813/a0a5533c-a856-4198-8470-2d67b1d7c554)
-
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src/
-│   ├── layouts/
-│   │   └── Layout.astro
-│   └── pages/
-│       └── index.astro
-└── package.json
+2. Install dependencies
+```bash
+bun install
 ```
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+3. Fetch and process artworks
+```bash
+bun run assets
+```
 
-## 🧞 Commands
+4. Start development server
+```bash
+bun run dev
+```
 
-All commands are run from the root of the project, from a terminal:
+5. Build (Optional)
+```
+bun run build
+```
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `bun install`             | Installs dependencies                            |
-| `bun dev`             | Starts local dev server at `localhost:4321`      |
-| `bun build`           | Build your production site to `./dist/`          |
-| `bun preview`         | Preview your build locally, before deploying     |
-| `bun astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `bun astro -- --help` | Get help using the Astro CLI                     |
+## How to Play 🕹️
 
-## 👀 Want to learn more?
+1. Enter your guess in the text field
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+2. Click "Guess!" or press Enter to submit
+
+3. Use revealed clues if you get stuck:
+
+4. Win by guessing correctly or reveal the answer when you're stuck
+
+5. Click "Next Pokémon" to keep playing!
+
+# Credits 🙌
+
+- Pokémon data from [PokeAPI](https://pokeapi.co/)
+
+- Astro framework for static site generation
+
+- Original game concept by Nintendo/Game Freak
+
+# License
+
+MIT License - see [LICENSE](LICENSE) for details.
