@@ -3,12 +3,14 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
+    "assets": "bun scripts/fetch_artwork.ts",
     "dev": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
+    "build": "bun run assets && astro build",
+    "preview": "bun run assets && astro preview",
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^5.4.1"
+    "astro": "^5.4.1",
+    "jimp": "^1.6.0"
   }
 }
