@@ -1,3 +1,6 @@
+import { generation, pokemonNumbers } from "./constants"
+import { v4 as uuidv4 } from 'uuid';
+
 type Pokemon = {
     id: number
     name: string
@@ -34,4 +37,18 @@ export const fetchPokemon = async (pokemon: number | string) => {
             ...speciesData
         }
     } as Pokemon
+}
+
+export const uuidMapping: Record<string, number> = Array.from({length: pokemonNumbers[generation]}).map(
+    (_,i) => {
+        return [uuidv4(), i + 1] as const
+    }
+).reduce((acc, [uuid, id]) => {
+    acc[uuid] = id
+    return acc
+}, {} as Record<string, number>)
+
+export const getRandomPokemonUuid = () => {
+    const uuids = Object.keys(uuidMapping)
+    return uuids[Math.floor(Math.random() * uuids.length)]
 }

@@ -2,19 +2,17 @@
 import Layout from "../../layouts/Layout.astro";
 import type { GetStaticPaths } from "astro";
 import { generation, pokemonNumbers, maxGuesses } from "../../core/constants";
-import { fetchPokemon } from "../../core/data";
+import { fetchPokemon, uuidMapping, getRandomPokemonUuid } from "../../core/data";
 
 export const getStaticPaths = (async () => {
-    return Array.from(
-        { length: pokemonNumbers[generation] }, 
-        (_, i) => ({
-            params: { pokemon: (i + 1).toString() }
-        })
-    );
+    const uuids = Object.keys(uuidMapping)
+    return uuids.map(uuid => ({
+        params: { pokemon: uuid }
+    }));
 }) satisfies GetStaticPaths;
 
 const { pokemon } = Astro.params;
-const data = await fetchPokemon(pokemon);
+const data = await fetchPokemon(uuidMapping[pokemon]);
 
 const pokedexEntry = data.species.flavor_text_entries
     .find(entry => entry.language.name === "en")
@@ -25,6 +23,8 @@ const pokedexEntry = data.species.flavor_text_entries
     .replace(/POKéMON/g, 'Pokémon')
     .replace(/  +/g, ' ')
     .trim() ?? "No Pokédex entry available.";
+
+const nextPokemon = getRandomPokemonUuid();
 ---
 <Layout>
 <div class="container">
@@ -330,7 +330,8 @@ const pokedexEntry = data.species.flavor_text_entries
 <script define:vars={{ 
     pokemonName: data.name, 
     maxGuesses, 
-    maxPokemon: pokemonNumbers[generation] 
+    maxPokemon: pokemonNumbers[generation],
+    nextPokemon
 }}>
     let remainingGuesses = maxGuesses;
     
@@ -400,8 +401,7 @@ const pokedexEntry = data.species.flavor_text_entries
     });
 
     nextButton?.addEventListener('click', () => {
-        const randomPokemon = Math.floor(Math.random() * maxPokemon) + 1;
-        window.location.href = `/pokemon/${randomPokemon}`;
+        window.location.href = `/pokemon/${nextPokemon}`;
     });
 
     skipButton?.addEventListener('click', () => {

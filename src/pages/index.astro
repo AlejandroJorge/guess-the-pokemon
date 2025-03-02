@@ -1,7 +1,7 @@
 ---
-import { generation, pokemonNumbers } from '../core/constants';
+import { getRandomPokemonUuid } from '../core/data';
 
-const randomPokemon = Math.floor(Math.random() * pokemonNumbers[generation]) + 1;
+const randomPokemon = getRandomPokemonUuid();
 
 return Astro.redirect(`/pokemon/${randomPokemon}`);
 ---
