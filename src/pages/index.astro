@@ -1,7 +1,406 @@
 ---
-import { getRandomPokemonUuid } from '../core/data';
+import Layout from "../layouts/Layout.astro"
 
-const randomPokemon = getRandomPokemonUuid();
+import { fetchRandomPokemon } from '../core/data';
+import { maxGuesses } from '../core/constants'
 
-return Astro.redirect(`/pokemon/${randomPokemon}`);
+const data = await fetchRandomPokemon();
+
+const pokedexEntry = data.species.flavor_text_entries
+    .find(entry => entry.language.name === "en")
+    ?.flavor_text
+    .replace(/\f/g, ' ')
+    .replace(/\n/g, ' ')
+    .replace(/\r/g, ' ')
+    .replace(/POKéMON/g, 'Pokémon')
+    .replace(/  +/g, ' ')
+    .trim() ?? "No Pokédex entry available.";
 ---
+
+<Layout>
+<div class="container">
+    <div class="game-layout">
+        <div class="left-panel">
+            <div class="image-container">
+                <img class="original hidden" width="400" height="400" src={`/original/${data.id}.png`} alt={data.name} />
+                <img class="silhouette" width="400" height="400" src={`/processed/${data.id}.png`} alt="Who's that Pokemon?" />
+            </div>
+
+            <div class="guess-container">
+                <input 
+                    type="text" 
+                    id="guess-input" 
+                    placeholder="Enter Pokemon name..." 
+                    class="guess-input"
+                />
+                <div class="button-row">
+                    <button id="submit-guess" class="guess-button">
+                        Guess!
+                    </button>
+                    <button id="skip-pokemon" class="skip-button">
+                        Skip
+                    </button>
+                </div>
+                <p id="guesses-remaining" class="guesses-text"></p>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div class="clues">
+                <h3>Clues</h3>
+                <div class="detail-item hidden" id="type-clue">
+                    <span class="detail-label">Types:</span>
+                    <span class="detail-value">
+                        {data.types.map(type => type.type.name).join(', ')}
+                    </span>
+                </div>
+                <div class="detail-item hidden" id="generation-clue">
+                    <span class="detail-label">Generation:</span>
+                    <span class="detail-value">
+                        {(() => {
+                            const gen = Math.ceil(data.id / 151);
+                            const numerals = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX'];
+                            return `Generation ${numerals[gen - 1]}`;
+                        })()}
+                    </span>
+                </div>
+                <div class="detail-item hidden" id="pokedex-clue">
+                    <span class="detail-label">Pokédex Entry:</span>
+                    <span class="detail-value pokedex-entry" style="text-align: left; white-space: pre-wrap; padding-left: 1.5rem;">{pokedexEntry}</span>
+                </div>
+            </div>
+
+            <div class="info hidden">
+                <h2 class="pokemon-name">{data.name}</h2>
+                <button id="next-pokemon" class="next-button hidden">
+                    Next Pokemon
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+</Layout>
+
+<style>
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+    }
+
+    .game-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+        align-items: start;
+        margin-top: 2rem;
+        height: 100%;
+    }
+
+    .left-panel {
+        text-align: center;
+        background-color: #1a1a1a;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .right-panel {
+        padding: 2rem;
+        background-color: #1a1a1a;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .image-container {
+        position: relative;
+        width: 400px;
+        height: 400px;
+        margin: 0 auto;
+        padding: 1rem;
+        background-color: #2a2a2a;
+        border-radius: 12px;
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .guess-container {
+        margin: 2rem 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.2rem;
+    }
+
+    .image-container{
+        position: relative;
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 1rem;
+        background-color: #2a2a2a;
+        border-radius: 12px;
+    }
+
+    .button-row {
+        display: flex;
+        gap: 1rem;
+        width: 100%;
+        max-width: 300px;
+        justify-content: center;
+    }
+
+    .guess-input {
+        padding: 1rem 1.5rem;
+        font-size: 1.2rem;
+        border: 2px solid #404040;
+        border-radius: 12px;
+        width: 100%;
+        max-width: 300px;
+        transition: all 0.3s ease;
+        background-color: #2a2a2a;
+        color: #ffffff;
+    }
+
+    .guess-input:focus {
+        outline: none;
+        border-color: #4a90e2;
+        box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+        background-color: #333333;
+    }
+
+    .guess-input::placeholder {
+        color: #888888;
+    }
+
+    .guess-button, .next-button, .skip-button {
+        padding: 1rem 2rem;
+        font-size: 1.2rem;
+        cursor: pointer;
+        border: none;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        min-width: 200px;
+    }
+
+    .guess-button {
+        background-color: #4a90e2;
+        color: white;
+    }
+
+    .guess-button:hover {
+        background-color: #357abd;
+        transform: translateY(-2px);
+    }
+
+    .guess-button:disabled {
+        background-color: #404040;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .next-button {
+        background-color: #45a049;
+        color: white;
+    }
+
+    .next-button:hover {
+        background-color: #357a38;
+        transform: translateY(-2px);
+    }
+
+    .skip-button {
+        background-color: #d32f2f;
+        color: white;
+    }
+
+    .skip-button:hover {
+        background-color: #b71c1c;
+        transform: translateY(-2px);
+    }
+
+    .hidden {
+        display: none !important;
+    }
+
+    .guesses-text {
+        margin-top: 1rem;
+        font-size: 1.2rem;
+        color: #bbbbbb;
+        font-weight: 500;
+    }
+
+    .clues h3 {
+        color: #ffffff;
+        margin-bottom: 1.8rem;
+        font-size: 1.8rem;
+        font-weight: 600;
+    }
+
+    .pokemon-name {
+        font-size: 2.4rem;
+        color: #ffffff;
+        margin: 1.5rem 0;
+        text-transform: capitalize;
+        font-weight: 700;
+    }
+
+    .detail-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 1rem 1.5rem;
+        background-color: #2a2a2a;
+        border-radius: 12px;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+    }
+
+    .detail-item:hover {
+        transform: translateX(5px);
+        background-color: #333333;
+    }
+
+    .detail-label {
+        font-weight: 600;
+        color: #bbbbbb;
+    }
+
+    .detail-value {
+        color: #ffffff;
+        text-transform: capitalize;
+        font-weight: 500;
+    }
+
+    .pokedex-entry {
+        text-transform: none;
+        text-align: justify !important;
+    }
+
+    .clues {
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .info {
+        width: 100%;
+        max-width: 400px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .game-layout {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        .image-container {
+            max-width: 300px;
+        }
+
+        .guess-input, .guess-button, .next-button {
+            max-width: 100%;
+        }
+    }
+</style>
+
+<script define:vars={{ 
+    pokemonName: data.name, 
+    maxGuesses
+}}>
+    let remainingGuesses = maxGuesses;
+    
+    const guessInput = document.getElementById('guess-input');
+    const submitButton = document.getElementById('submit-guess');
+    const silhouette = document.querySelector('.silhouette');
+    const original = document.querySelector('.original');
+    const info = document.querySelector('.info');
+    const guessesRemainingElement = document.getElementById('guesses-remaining');
+
+    const typeClue = document.getElementById('type-clue');
+    const generationClue = document.getElementById('generation-clue');
+    const pokedexClue = document.getElementById('pokedex-clue');
+
+    const nextButton = document.getElementById('next-pokemon');
+    const skipButton = document.getElementById('skip-pokemon');
+
+    guessesRemainingElement.textContent = `Remaining guesses: ${remainingGuesses}`;
+
+    function showGameOver() {
+        guessInput.disabled = true;
+        submitButton.disabled = true;
+        skipButton.disabled = true;
+        silhouette.classList.add('hidden');
+        original.classList.remove('hidden');
+        info.classList.remove('hidden');
+        nextButton.classList.remove('hidden');
+        typeClue.classList.remove('hidden');
+        generationClue.classList.remove('hidden');
+        pokedexClue.classList.remove('hidden');
+    }
+
+    submitButton?.addEventListener('click', () => {
+        const guess = guessInput.value.toLowerCase().trim();
+        const actualName = pokemonName.toLowerCase();
+
+        if (!guess || guess.trim() === '') {
+            guessInput.placeholder = 'Please enter a Pokemon name';
+            return;
+        }
+
+        remainingGuesses--;
+        guessesRemainingElement.textContent = `Remaining guesses: ${remainingGuesses}`;
+
+        if (guess === actualName) {
+            showGameOver();
+            guessesRemainingElement.textContent = 'You won!';
+        } else {
+            guessInput.value = '';
+            guessInput.placeholder = 'Try again...';
+            
+            if (remainingGuesses <= 3) {
+                typeClue.classList.remove('hidden');
+            }
+            if (remainingGuesses <= 2) {
+                generationClue.classList.remove('hidden');
+            }
+            if (remainingGuesses <= 1) {
+                pokedexClue.classList.remove('hidden');
+            }
+            
+            if (remainingGuesses <= 0) {
+                showGameOver();
+                guessesRemainingElement.textContent = 'Game Over! You ran out of guesses.';
+            }
+        }
+    });
+
+    nextButton?.addEventListener('click', () => {
+        window.location.reload();
+    });
+
+    skipButton?.addEventListener('click', () => {
+        showGameOver();
+        guessesRemainingElement.textContent = 'Skipped!';
+    });
+
+    guessInput?.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            submitButton.click();
+        }
+    });
+</script>
