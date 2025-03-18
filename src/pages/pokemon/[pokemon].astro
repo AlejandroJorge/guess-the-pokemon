@@ -331,7 +331,7 @@ const nextPokemon = getRandomPokemonUuid();
     pokemonName: data.name, 
     maxGuesses, 
     maxPokemon: pokemonNumbers[generation],
-    nextPokemon
+    uuidMapping,
 }}>
     let remainingGuesses = maxGuesses;
     
@@ -401,6 +401,10 @@ const nextPokemon = getRandomPokemonUuid();
     });
 
     nextButton?.addEventListener('click', () => {
+        const uuids = Object.keys(uuidMapping)
+        const uuid = uuids[Math.floor(Math.random() * uuids.length)]
+
+        const nextPokemon = uuidMapping[uuid]
         window.location.href = `/pokemon/${nextPokemon}`;
     });
 
