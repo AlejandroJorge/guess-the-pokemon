@@ -404,8 +404,7 @@ const nextPokemon = getRandomPokemonUuid();
         const uuids = Object.keys(uuidMapping)
         const uuid = uuids[Math.floor(Math.random() * uuids.length)]
 
-        const nextPokemon = uuidMapping[uuid]
-        window.location.href = `/pokemon/${nextPokemon}`;
+        window.location.href = `/pokemon/${uuid}`;
     });
 
     skipButton?.addEventListener('click', () => {
